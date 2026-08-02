@@ -1,0 +1,19 @@
+<div class="card">
+    <div class="row-between" style="margin-bottom:1.5rem;">
+        <h3>Transactions</h3>
+        <input type="text" id="tx-search" placeholder="Search transactions..." style="max-width:260px; padding:0.6rem 1rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary);">
+    </div>
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left; color:var(--text-secondary); font-size:0.8rem; border-bottom:1px solid var(--border-color);">
+                <th style="padding:0.6rem;">Date</th>
+                <th style="padding:0.6rem;">Description</th>
+                <th style="padding:0.6rem;">Type</th>
+                <th style="padding:0.6rem;">Amount</th>
+                <th style="padding:0.6rem;">Status</th>
+            </tr>
+        </thead>
+        <tbody id="tx-table-body"></tbody>
+    </table>
+    <div id="tx-empty" class="empty-state hidden">No transactions found</div>
+</div>

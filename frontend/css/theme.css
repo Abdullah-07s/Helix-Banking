@@ -1,0 +1,63 @@
+/* 
+   CSS custom properties for light and dark themes. Everything in
+   styles.css references these variables (never hardcoded colors), so
+   toggling the `data-theme` attribute on <html> instantly reskins the
+   entire app - this is the mechanism behind the theme toggle button.
+*/
+
+:root,
+[data-theme="light"] {
+    --bg-primary: #f5f7fb;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #f8f9fc;
+    --bg-hover: #f0f2f8;
+
+    --text-primary: #1a1d29;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+
+    --border-color: #e5e7eb;
+
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #dbeafe;
+
+    --success: #16a34a;
+    --success-bg: #dcfce7;
+    --warning: #d97706;
+    --warning-bg: #fef3c7;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f1420;
+    --bg-sidebar: #131826;
+    --bg-card: #1a2033;
+    --bg-input: #232a42;
+    --bg-hover: #232a42;
+
+    --text-primary: #f1f3f9;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+
+    --border-color: #2a3149;
+
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-light: #1e3a5f;
+
+    --success: #22c55e;
+    --success-bg: #14301f;
+    --warning: #f59e0b;
+    --warning-bg: #3a2c0d;
+    --danger: #ef4444;
+    --danger-bg: #3a1414;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.5);
+}

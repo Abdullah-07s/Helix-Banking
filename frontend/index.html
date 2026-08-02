@@ -1,0 +1,95 @@
+<!--
+  Single entry point for the SPA. The <div id="app"> is where router.js
+  injects the current view's HTML. Sidebar/topbar are part of the shell
+  and stay mounted across view changes (matches the reference screens'
+  persistent left nav + top bar).
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helix | Digital Banking</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Auth screens (login/register) render full-screen, no sidebar -->
+    <div id="auth-root" class="auth-root hidden"></div>
+
+    <!-- Main app shell: sidebar + topbar + content area -->
+    <div id="app-shell" class="app-shell hidden">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">Helix</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#/dashboard" data-route="dashboard" class="nav-item">
+                    <span class="nav-icon">▦</span> Dashboard
+                </a>
+                <a href="#/accounts" data-route="accounts" class="nav-item">
+                    <span class="nav-icon">▤</span> Accounts
+                </a>
+                <a href="#/transfer" data-route="transfer" class="nav-item">
+                    <span class="nav-icon">⇄</span> Transfer
+                </a>
+                <a href="#/transactions" data-route="transactions" class="nav-item">
+                    <span class="nav-icon">☰</span> Transactions
+                </a>
+                <a href="#/alerts" data-route="alerts" class="nav-item">
+                    <span class="nav-icon">⚠</span> Alerts
+                </a>
+                <a href="#/profile" data-route="profile" class="nav-item">
+                    <span class="nav-icon">⚙</span> Settings
+                </a>
+            </nav>
+            <button id="logout-trigger" class="nav-item logout-item">
+                <span class="nav-icon">⏻</span> Logout
+            </button>
+        </aside>
+
+        <div class="main-column">
+            <header class="topbar">
+                <h1 id="page-title" class="page-title">Dashboard</h1>
+                <div class="topbar-actions">
+                    <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌙</button>
+                    <span id="user-greeting" class="user-greeting"></span>
+                </div>
+            </header>
+            <main id="view-root" class="view-root">
+                <!-- router.js injects the active view's HTML here -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Logout confirmation modal - matches reference screen -->
+    <div id="logout-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-icon">⏻</div>
+            <h2>Logout</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="modal-actions">
+                <button id="logout-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="logout-confirm" class="btn btn-danger">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container for success/error feedback -->
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="js/theme.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/accounts.js"></script>
+    <script src="js/transfer.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

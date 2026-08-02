@@ -1,0 +1,57 @@
+# File: helix-parent/commands.txt
+# Every terminal command used across the Helix build, in the order
+# they'd typically be run for a fresh setup.
+
+# ===== Initial setup =====
+cp .env.example .env
+# (edit .env with real local values)
+
+# ===== Infra =====
+./run-dev.ps1 infra
+docker ps
+
+# ===== Build =====
+./mvnw clean install
+./mvnw -pl helix-common -am clean install
+./mvnw -pl helix-account-service -am clean install
+./mvnw -pl helix-transaction-service -am clean install
+./mvnw -pl helix-card-service -am clean install
+./mvnw -pl helix-fraud-service -am clean install
+./mvnw -pl helix-gateway -am clean install
+
+# ===== Run (individually) =====
+./run-dev.ps1 helix-account-service
+./run-dev.ps1 helix-transaction-service
+./run-dev.ps1 helix-card-service
+./run-dev.ps1 helix-fraud-service
+./run-dev.ps1 helix-gateway
+
+# ===== Run (all at once, each in its own window) =====
+./run-dev.ps1 all
+
+# ===== Frontend =====
+cd frontend
+npx serve .
+
+# ===== MySQL troubleshooting =====
+docker exec -it helix-mysql mysql -u helix_app -proot123 -h 127.0.0.1 -P 3307
+netstat -ano | findstr :3306
+Get-Service *mysql*
+wsl --shutdown
+
+# ===== Testing endpoints (PowerShell) =====
+$body = @{ fullName="Jane Doe"; email="jane@example.com"; phoneNumber="1234567890"; password="password123"; confirmPassword="password123" } | ConvertTo-Json
+$response = Invoke-RestMethod -Uri "http://localhost:8080/api/auth/register" -Method Post -Body $body -ContentType "application/json"
+$token = $response.data.token
+Invoke-RestMethod -Uri "http://localhost:8080/api/accounts" -Method Get -Headers @{ Authorization = "Bearer $token" }
+
+# ===== Deposit test =====
+Invoke-RestMethod -Uri "http://localhost:8080/api/transactions/deposit" -Method Post -Headers @{ Authorization = "Bearer $token" } -Body (@{ accountId=1; amount=5000; note="Test deposit" } | ConvertTo-Json) -ContentType "application/json"
+
+# ===== Jenkins (CI, run on the Jenkins agent, not locally) =====
+./mvnw -pl helix-common -am clean install -DskipTests
+./mvnw -pl helix-account-service -am clean verify
+./mvnw -pl helix-transaction-service -am clean verify
+./mvnw -pl helix-card-service -am clean verify
+./mvnw -pl helix-fraud-service -am clean verify
+./mvnw -pl helix-gateway -am clean package -DskipTests

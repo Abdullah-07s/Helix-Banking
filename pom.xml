@@ -1,0 +1,68 @@
+<!--
+  Root aggregator POM for the Helix multi-module project.
+  Declares shared Spring Boot version, Java version, and dependency
+  management (BOM imports) so every child module stays version-aligned
+  without repeating version numbers everywhere.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.helix</groupId>
+    <artifactId>helix-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <!-- packaging=pom because this module contains no code, only submodules -->
+    <packaging>pom</packaging>
+    <name>helix-parent</name>
+    <description>Helix digital banking platform - parent aggregator</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+    </properties>
+
+    <!-- List of all sibling modules. Maven builds these in dependency order
+         automatically (helix-common first, since others depend on it). -->
+    <modules>
+        <module>helix-common</module>
+        <module>helix-account-service</module>
+        <module>helix-transaction-service</module>
+        <module>helix-card-service</module>
+        <module>helix-fraud-service</module>
+        <module>helix-gateway</module> 
+    </modules>
+
+    <!-- dependencyManagement lets child modules declare Spring Cloud
+         dependencies (Feign, Gateway) without specifying a version;
+         the version is resolved from this BOM import. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

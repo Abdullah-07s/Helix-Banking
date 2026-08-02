@@ -1,0 +1,15 @@
+<div class="card">
+    <div class="row-between" style="margin-bottom:1.5rem;">
+        <h3>Alerts & Fraud</h3>
+    </div>
+
+    <div id="alert-tabs" style="display:flex; gap:0.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color);">
+        <button class="alert-tab active" data-status="ALL">All Alerts</button>
+        <button class="alert-tab" data-status="PENDING">Pending</button>
+        <button class="alert-tab" data-status="REVIEWED">Reviewed</button>
+        <button class="alert-tab" data-status="BLOCKED">Blocked</button>
+    </div>
+
+    <div id="alerts-list" class="stack"></div>
+    <div id="alerts-empty" class="empty-state hidden">No alerts found</div>
+</div>

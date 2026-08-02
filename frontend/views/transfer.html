@@ -1,0 +1,36 @@
+<div class="grid-2">
+    <div class="card">
+        <h3 style="margin-bottom:1.5rem;">Send Money</h3>
+        <form id="transfer-form">
+            <div class="field">
+                <label for="transfer-from">From Account</label>
+                <select id="transfer-from" required></select>
+            </div>
+            <div class="field">
+                <label for="transfer-to-account-id">Recipient Account ID</label>
+                <input type="number" id="transfer-to-account-id" required placeholder="e.g. 2">
+            </div>
+            <div class="field">
+                <label for="transfer-recipient-number">Recipient Account Number</label>
+                <input type="text" id="transfer-recipient-number" required placeholder="Enter account number">
+            </div>
+            <div class="field">
+                <label for="transfer-amount">Amount</label>
+                <input type="number" id="transfer-amount" required min="0.01" step="0.01" placeholder="0.00">
+            </div>
+            <div class="field">
+                <label for="transfer-note">Note (Optional)</label>
+                <input type="text" id="transfer-note" placeholder="Add a note">
+            </div>
+            <div id="transfer-error" class="auth-error hidden"></div>
+            <button type="submit" class="btn btn-primary btn-block">Transfer</button>
+        </form>
+    </div>
+
+    <div id="transfer-confirmation" class="card hidden" style="text-align:center;">
+        <div style="font-size:2.5rem; color:var(--success); margin-bottom:0.5rem;">✓</div>
+        <h2 style="margin-bottom:0.4rem;">Transfer Successful!</h2>
+        <p id="confirmation-summary" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;"></p>
+        <button id="confirmation-done" class="btn btn-primary btn-block">Done</button>
+    </div>
+</div>

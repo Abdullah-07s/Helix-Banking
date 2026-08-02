@@ -1,0 +1,57 @@
+# Declarative route table: each entry matches a path prefix and forwards
+# the request to the corresponding backend service's host:port. The
+# frontend (Phase 8) only ever calls this gateway on port 8080 - it
+# never needs to know about ports 8081-8084 directly.
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: helix-gateway
+
+  cloud:
+    gateway:
+      # Allows requests from the frontend dev server (Vite/plain-JS on
+      # a different port) during local development.
+      globalcors:
+        cors-configurations:
+          "[/**]":
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      routes:
+        # --- Account service: auth, accounts, profile ---
+        - id: account-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**,/api/accounts/**,/api/profile/**
+
+        # --- Transaction service: transfers, history ---
+        - id: transaction-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/transactions/**
+
+        # --- Card service: card list/management ---
+        - id: card-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/cards/**
+
+        # --- Fraud-Detection service: alerts ---
+        - id: fraud-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/alerts/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

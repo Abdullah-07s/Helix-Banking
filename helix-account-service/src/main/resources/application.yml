@@ -1,0 +1,35 @@
+# All secrets/URLs are sourced from environment variables (populated
+# from .env when running via docker-compose, or exported manually in
+# your shell / IDE run config when running standalone).
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: helix-account-service
+
+  datasource:
+    url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/helix_account?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # update is fine for this learning project; a production system
+      # would use a migration tool (Flyway/Liquibase) instead.
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+helix:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
+logging:
+  level:
+    com.helix: DEBUG

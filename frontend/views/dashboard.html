@@ -1,0 +1,35 @@
+<div class="grid-2">
+    <div class="stack">
+        <div class="card">
+            <div class="row-between" style="margin-bottom:0.5rem;">
+                <span style="color:var(--text-secondary); font-size:0.9rem;">Total Balance</span>
+                <span style="color:var(--success); font-size:0.85rem; font-weight:600;" id="balance-change">This Month</span>
+            </div>
+            <div id="total-balance" style="font-size:2.2rem; font-weight:700;">$0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="row-between" style="margin-bottom:1rem;">
+                <h3>Recent Transactions</h3>
+                <a href="#/transactions" style="color:var(--accent); font-size:0.85rem; font-weight:600;">View All</a>
+            </div>
+            <div id="recent-transactions-list" class="stack"></div>
+        </div>
+    </div>
+
+    <div class="stack">
+        <div class="card">
+            <h3 style="margin-bottom:1rem;">Quick Actions</h3>
+            <div class="stack">
+                <a href="#/transfer" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.6rem;">↗ Send Money</a>
+                <a href="#/accounts" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.6rem;">▤ Add Card</a>
+                <a href="#/transactions" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.6rem;">▦ View Statement</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom:1rem;">Spending Overview</h3>
+            <div id="spending-overview" class="empty-state">No spending data yet</div>
+        </div>
+    </div>
+</div>

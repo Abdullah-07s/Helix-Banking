@@ -1,0 +1,33 @@
+<!--
+  API Gateway: single entry point for the frontend. Routes incoming
+  requests to the appropriate backend service based on path prefix.
+  Uses Spring Cloud Gateway (reactive, non-blocking) - note this is a
+  different reactive stack (WebFlux) than the other services (WebMVC),
+  which is standard practice for gateways since Spring Cloud Gateway
+  is built on WebFlux/Netty rather than Tomcat.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.helix</groupId>
+        <artifactId>helix-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>helix-gateway</artifactId>
+    <packaging>jar</packaging>
+    <name>helix-gateway</name>
+    <description>Helix API Gateway - routes frontend requests to backend services</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

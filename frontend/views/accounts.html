@@ -1,0 +1,42 @@
+<div class="card" id="account-reference-card" style="margin-bottom:1.5rem;">
+    <h3 style="margin-bottom:1rem;">Quick Reference (for Transfers)</h3>
+    <div id="account-reference-list" class="stack"></div>
+</div>
+
+<div class="row-between" style="margin-bottom:1.5rem;">
+    <h3>My Accounts</h3>
+    <button id="deposit-btn" class="btn btn-primary">+ Add Money</button>
+</div>
+<div id="accounts-list" class="stack" style="margin-bottom:2rem;"></div>
+
+<div class="row-between" style="margin-bottom:1.5rem;">
+    <h3>My Cards</h3>
+    <button id="add-card-btn" class="btn btn-primary">+ Add Card</button>
+</div>
+<div id="cards-list" class="stack"></div>
+
+<!-- Simple deposit modal -->
+<div id="deposit-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="text-align:left;">
+        <h2 style="margin-bottom:1rem;">Add Money</h2>
+        <form id="deposit-form">
+            <div class="field">
+                <label for="deposit-account">Account</label>
+                <select id="deposit-account" required></select>
+            </div>
+            <div class="field">
+                <label for="deposit-amount">Amount</label>
+                <input type="number" id="deposit-amount" required min="0.01" step="0.01" placeholder="0.00">
+            </div>
+            <div class="field">
+                <label for="deposit-note">Note (Optional)</label>
+                <input type="text" id="deposit-note" placeholder="e.g. Paycheck">
+            </div>
+            <div id="deposit-error" class="auth-error hidden"></div>
+            <div class="modal-actions">
+                <button type="button" id="deposit-cancel" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Money</button>
+            </div>
+        </form>
+    </div>
+</div>

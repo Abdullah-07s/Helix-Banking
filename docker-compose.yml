@@ -1,0 +1,63 @@
+# Brings up the three infrastructure dependencies shared by all Helix
+# microservices: MySQL (persistence), Kafka (transaction event streaming),
+# and RabbitMQ (fraud/login alert notifications).
+#
+# MySQL is mapped to host port 3307 (not the default 3306) to avoid
+# conflicts with a native MySQL install or Windows/WSL relay processes
+# that may already be bound to 3306 - see README troubleshooting section.
+
+services:
+
+  mysql:
+    image: mysql:8.3
+    container_name: helix-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - helix-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: helix-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@helix-kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: helix-local-cluster-id
+    volumes:
+      - helix-kafka-data:/var/lib/kafka/data
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: helix-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - helix-rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  helix-mysql-data:
+  helix-kafka-data:
+  helix-rabbitmq-data:
