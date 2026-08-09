@@ -4,7 +4,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Copy the pre-built jar (built by CI/Maven before docker build runs)
-COPY target/helix-account-service-0.0.1-SNAPSHOT.jar app.jar
+COPY target/helix-account-service.jar app.jar
 
 EXPOSE 8081
 
