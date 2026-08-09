@@ -20,7 +20,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk21' // Configure a JDK 21 tool named 'jdk21' in Jenkins Global Tool Configuration
+        jdk 'jdk21' //Configure a JDK 21 tool named 'jdk21' in Jenkins Global Tool Configuration
     }
 
     environment {
