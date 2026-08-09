@@ -15,6 +15,10 @@
 //   $spAppId = "<azure-sp-clientid value>"
 //   $acrId = az acr show --name helixacr --resource-group helix-rg --query id -o tsv
 //   az role assignment create --assignee $spAppId --scope $acrId --role AcrPush
+//
+// NOTE: the helix-frontend Container App must be created manually once
+// (az containerapp create) before the Deploy stage's `containerapp update`
+// call for it will succeed - see chat history for the one-time create command.
 
 pipeline {
     agent any
@@ -123,6 +127,16 @@ pipeline {
                       echo DEBUG: docker push succeeded for %%s
                     )
                     echo DEBUG: for loop finished
+
+                    echo DEBUG: building frontend
+                    docker build -t %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG% -t %ACR_LOGIN_SERVER%/helix-frontend:latest .\\frontend
+                    if errorlevel 1 exit /b 1
+                    echo DEBUG: docker build succeeded for helix-frontend
+                    docker push %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG%
+                    if errorlevel 1 exit /b 1
+                    docker push %ACR_LOGIN_SERVER%/helix-frontend:latest
+                    if errorlevel 1 exit /b 1
+                    echo DEBUG: docker push succeeded for helix-frontend
                 '''
             }
         }
@@ -145,6 +159,10 @@ pipeline {
 
                         echo Deploying helix-gateway...
                         az containerapp update --name helix-gateway --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-gateway:%IMAGE_TAG% --set-env-vars JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
+                        if errorlevel 1 exit /b 1
+
+                        echo Deploying helix-frontend...
+                        az containerapp update --name helix-frontend --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG%
                         if errorlevel 1 exit /b 1
                     '''
                 }
