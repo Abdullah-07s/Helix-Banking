@@ -28,29 +28,22 @@ spring:
             allowCredentials: true
 
       routes:
-        # --- Account service: auth, accounts, profile ---
-        - id: account-service
-          uri: http://helix-account-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
-          predicates:
-            - Path=/api/auth/**,/api/accounts/**,/api/profile/**
-
-        # --- Transaction service: transfers, history ---
-        - id: transaction-service
-          uri: http://helix-transaction-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
-          predicates:
-            - Path=/api/transactions/**
-
-        # --- Card service: card list/management ---
-        - id: card-service
-          uri: http://helix-card-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
-          predicates:
-            - Path=/api/cards/**
-
-        # --- Fraud-Detection service: alerts ---
-        - id: fraud-service
-          uri: http://helix-fraud-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
-          predicates:
-            - Path=/api/alerts/**
+  - id: account-service
+    uri: https://helix-account-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
+    predicates:
+      - Path=/api/auth/**,/api/accounts/**,/api/profile/**
+  - id: transaction-service
+    uri: https://helix-transaction-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
+    predicates:
+      - Path=/api/transactions/**
+  - id: card-service
+    uri: https://helix-card-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
+    predicates:
+      - Path=/api/cards/**
+  - id: fraud-service
+    uri: https://helix-fraud-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io
+    predicates:
+      - Path=/api/alerts/**
 
 logging:
   level:
