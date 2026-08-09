@@ -153,7 +153,13 @@ pipeline {
             echo 'Build failed - check stage logs above for the failing module.'
         }
         always {
-            cleanWs()
+            script {
+                try {
+                    cleanWs()
+                } catch (Exception e) {
+                    echo "Workspace cleanup failed (non-fatal): ${e.message}"
+                }
+            }
         }
     }
 }
