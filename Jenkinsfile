@@ -29,6 +29,17 @@
 // (the gateway/frontend deploys placed after the four-service for-loop).
 // Fix in both cases: give anything after a for-loop its own separate bat
 // step, since each bat call is a fresh process invocation.
+//
+// NOTE ON ACCOUNT_SERVICE_URL: helix-transaction-service calls
+// helix-account-service internally via an OpenFeign client
+// (AccountServiceClient), whose base URL is driven by the
+// helix.services.account-url property (${ACCOUNT_SERVICE_URL:http://localhost:8081}
+// in application.yml). It must point at account-service's internal
+// Container Apps FQDN, over https - Azure's internal ingress redirects
+// plain http to https, and Feign's client doesn't follow redirects, so
+// using http here reproduces a "Connection refused executing GET
+// http://localhost:8081/..." error in the transaction-service logs.
+// It's harmlessly unused by the other three services in this shared loop.
 
 pipeline {
     agent any
@@ -48,6 +59,8 @@ pipeline {
         ACR_LOGIN_SERVER = 'helixacr.azurecr.io'
         RESOURCE_GROUP = 'helix-rg'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+
+        ACCOUNT_SERVICE_URL = 'https://helix-account-service.internal.ashydesert-43d28197.uaenorth.azurecontainerapps.io'
     }
 
     stages {
@@ -166,18 +179,18 @@ pipeline {
 
                         for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service) do (
                           echo Deploying %%s...
-                          az containerapp update --name %%s --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% --set-env-vars DB_HOST=%DB_HOST% DB_PORT=3306 DB_USERNAME=helix_app DB_PASSWORD=%REAL_DB_PASSWORD% RABBITMQ_HOST=helix-rabbitmq RABBITMQ_PORT=5672 RABBITMQ_USER=helix RABBITMQ_PASSWORD=%REAL_RABBITMQ_PASSWORD% KAFKA_BOOTSTRAP_SERVERS=helix-kafka:9092 JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
+                          az containerapp update --name %%s --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% --set-env-vars DB_HOST=%DB_HOST% DB_PORT=3306 DB_USERNAME=helix_app DB_PASSWORD=%REAL_DB_PASSWORD% RABBITMQ_HOST=helix-rabbitmq RABBITMQ_PORT=5672 RABBITMQ_USER=helix RABBITMQ_PASSWORD=%REAL_RABBITMQ_PASSWORD% KAFKA_BOOTSTRAP_SERVERS=helix-kafka:9092 JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000 ACCOUNT_SERVICE_URL=%ACCOUNT_SERVICE_URL%
                           if errorlevel 1 exit /b 1
                         )
                     '''
                     bat 'echo Deploying helix-gateway...'
                     bat '''
-                        az containerapp update --name helix-gateway --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-gateway:%IMAGE_TAG% --set-env-vars JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
+                        az containerapp update --name helix-gateway --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-gateway:%IMAGE_TAG% --set-env-vars JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000 --min-replicas 1
                         if errorlevel 1 exit /b 1
                     '''
                     bat 'echo Deploying helix-frontend...'
                     bat '''
-                        az containerapp update --name helix-frontend --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG%
+                        az containerapp update --name helix-frontend --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG% --min-replicas 1
                         if errorlevel 1 exit /b 1
                     '''
                 }
