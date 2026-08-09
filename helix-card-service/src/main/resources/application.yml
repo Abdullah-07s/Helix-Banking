@@ -6,7 +6,7 @@ spring:
     name: helix-card-service
 
   datasource:
-    url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/helix_card?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+    url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/helix_card?createDatabaseIfNotExist=true&useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC"
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
