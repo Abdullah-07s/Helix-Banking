@@ -4,6 +4,17 @@
 // and deploys to Azure Container Apps.
 //
 // Runs on a native Windows Jenkins agent - uses `bat` steps, not `sh`.
+//
+// ACR auth uses `az acr login` with the same service principal used for
+// Azure Login, rather than the ACR admin user/password. This avoids
+// piping a raw password through cmd.exe (which can mangle special
+// characters) and lets access be scoped to an AcrPush role instead of
+// full registry admin rights.
+//
+// One-time setup required before this works:
+//   $spAppId = "<azure-sp-clientid value>"
+//   $acrId = az acr show --name helixacr --resource-group helix-rg --query id -o tsv
+//   az role assignment create --assignee $spAppId --scope $acrId --role AcrPush
 
 pipeline {
     agent any
@@ -82,33 +93,30 @@ pipeline {
                     string(credentialsId: 'azure-sp-clientsecret', variable: 'AZ_CLIENT_SECRET'),
                     string(credentialsId: 'azure-tenantid', variable: 'AZ_TENANT_ID')
                 ]) {
-                    bat 'az login --service-principal -u %AZ_CLIENT_ID% -p %AZ_CLIENT_SECRET% --tenant %AZ_TENANT_ID%'
+                    bat '''
+                        az login --service-principal -u %AZ_CLIENT_ID% -p %AZ_CLIENT_SECRET% --tenant %AZ_TENANT_ID%
+                        if errorlevel 1 exit /b 1
+                    '''
                 }
             }
         }
 
         stage('Build & Push Images to ACR') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'acr-username', variable: 'ACR_USER'),
-                    string(credentialsId: 'acr-password', variable: 'ACR_PASS')
-                ]) {
-                    bat '''
-                        echo ACR_USER length check:
-                        powershell -Command "Write-Host $env:ACR_USER.Length"
-                        echo ACR_PASS length check:
-                        powershell -Command "Write-Host $env:ACR_PASS.Length"
+                bat '''
+                    az acr login --name %ACR_NAME%
+                    if errorlevel 1 exit /b 1
 
-                        echo %ACR_PASS% | docker login %ACR_LOGIN_SERVER% -u %ACR_USER% --password-stdin
-
-                        for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service helix-gateway) do (
-                          echo Building %%s...
-                          docker build -t %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% -t %ACR_LOGIN_SERVER%/%%s:latest .\\%%s
-                          docker push %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG%
-                          docker push %ACR_LOGIN_SERVER%/%%s:latest
-                        )
-                    '''
-                }
+                    for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service helix-gateway) do (
+                      echo Building %%s...
+                      docker build -t %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% -t %ACR_LOGIN_SERVER%/%%s:latest .\\%%s
+                      if errorlevel 1 exit /b 1
+                      docker push %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG%
+                      if errorlevel 1 exit /b 1
+                      docker push %ACR_LOGIN_SERVER%/%%s:latest
+                      if errorlevel 1 exit /b 1
+                    )
+                '''
             }
         }
 
@@ -125,10 +133,12 @@ pipeline {
                         for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service) do (
                           echo Deploying %%s...
                           az containerapp update --name %%s --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% --set-env-vars DB_HOST=%DB_HOST% DB_PORT=3306 DB_USERNAME=helix_app DB_PASSWORD=%REAL_DB_PASSWORD% RABBITMQ_HOST=helix-rabbitmq RABBITMQ_PORT=5672 RABBITMQ_USER=helix RABBITMQ_PASSWORD=%REAL_RABBITMQ_PASSWORD% KAFKA_BOOTSTRAP_SERVERS=helix-kafka:9092 JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
+                          if errorlevel 1 exit /b 1
                         )
 
                         echo Deploying helix-gateway...
                         az containerapp update --name helix-gateway --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-gateway:%IMAGE_TAG% --set-env-vars JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
+                        if errorlevel 1 exit /b 1
                     '''
                 }
             }
