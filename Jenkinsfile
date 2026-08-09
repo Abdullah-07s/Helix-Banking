@@ -103,14 +103,13 @@ pipeline {
 
         stage('Build & Push Images to ACR') {
             steps {
+                // Split into separate bat steps (each its own process invocation)
+                // to isolate whether `az acr login` is where execution is dying.
+                bat 'echo DEBUG: before acr login'
+                bat 'az acr login --name %ACR_NAME%'
+                bat 'echo DEBUG: acr login step returned, still executing'
+                bat 'echo DEBUG: about to enter for loop'
                 bat '''
-                    echo DEBUG: before acr login
-                    az acr login --name %ACR_NAME%
-                    set ACR_LOGIN_RESULT=%errorlevel%
-                    echo DEBUG: acr login errorlevel is %ACR_LOGIN_RESULT%
-                    if %ACR_LOGIN_RESULT% neq 0 exit /b 1
-
-                    echo DEBUG: about to enter for loop
                     for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service helix-gateway) do (
                       echo DEBUG: loop entered for %%s
                       echo Building %%s...
