@@ -106,20 +106,22 @@ pipeline {
                 bat '''
                     echo DEBUG: before acr login
                     az acr login --name %ACR_NAME%
-                    echo DEBUG: acr login errorlevel is %errorlevel%
-                    if errorlevel 1 exit /b 1
+                    set ACR_LOGIN_RESULT=%errorlevel%
+                    echo DEBUG: acr login errorlevel is %ACR_LOGIN_RESULT%
+                    if %ACR_LOGIN_RESULT% neq 0 exit /b 1
 
                     echo DEBUG: about to enter for loop
                     for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service helix-gateway) do (
                       echo DEBUG: loop entered for %%s
                       echo Building %%s...
                       docker build -t %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% -t %ACR_LOGIN_SERVER%/%%s:latest .\\%%s
-                      echo DEBUG: docker build errorlevel is %errorlevel%
                       if errorlevel 1 exit /b 1
+                      echo DEBUG: docker build succeeded for %%s
                       docker push %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG%
                       if errorlevel 1 exit /b 1
                       docker push %ACR_LOGIN_SERVER%/%%s:latest
                       if errorlevel 1 exit /b 1
+                      echo DEBUG: docker push succeeded for %%s
                     )
                     echo DEBUG: for loop finished
                 '''
@@ -159,7 +161,13 @@ pipeline {
             echo 'Build failed - check stage logs above for the failing module.'
         }
         always {
-            cleanWs()
+            script {
+                try {
+                    cleanWs()
+                } catch (Exception e) {
+                    echo "Workspace cleanup failed (non-fatal): ${e.getMessage()}"
+                }
+            }
         }
     }
 }
