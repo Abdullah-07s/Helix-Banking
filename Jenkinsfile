@@ -94,6 +94,11 @@ pipeline {
                     string(credentialsId: 'acr-password', variable: 'ACR_PASS')
                 ]) {
                     bat '''
+                        echo ACR_USER length check:
+                        powershell -Command "Write-Host $env:ACR_USER.Length"
+                        echo ACR_PASS length check:
+                        powershell -Command "Write-Host $env:ACR_PASS.Length"
+
                         echo %ACR_PASS% | docker login %ACR_LOGIN_SERVER% -u %ACR_USER% --password-stdin
 
                         for %%s in (helix-account-service helix-transaction-service helix-card-service helix-fraud-service helix-gateway) do (
