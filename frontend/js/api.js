@@ -4,7 +4,7 @@
 // these are all "utility layer" concerns that every other screen's JS
 // depends on and are loaded before them in index.html.
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://helix-gateway.ashydesert-43d28197.uaenorth.azurecontainerapps.io/api';
 
 const HelixAPI = {
 
