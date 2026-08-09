@@ -19,6 +19,16 @@
 // NOTE: the helix-frontend Container App must be created manually once
 // (az containerapp create) before the Deploy stage's `containerapp update`
 // call for it will succeed - see chat history for the one-time create command.
+//
+// NOTE ON bat STEP STRUCTURE: any `for %%x in (...) do (...)` loop must be
+// the LAST thing in its `bat` block. Commands placed after a for-loop in
+// the same multi-line bat block have been observed to silently never
+// execute (no error, no errorlevel trip - the stage just ends early). This
+// bit us twice: once in the ACR build/push stage (az acr login combined
+// with the docker build/push for-loop), and once in this Deploy stage
+// (the gateway/frontend deploys placed after the four-service for-loop).
+// Fix in both cases: give anything after a for-loop its own separate bat
+// step, since each bat call is a fresh process invocation.
 
 pipeline {
     agent any
@@ -127,17 +137,20 @@ pipeline {
                       echo DEBUG: docker push succeeded for %%s
                     )
                     echo DEBUG: for loop finished
-
-                    echo DEBUG: building frontend
+                '''
+                bat 'echo DEBUG: building frontend'
+                bat '''
                     docker build -t %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG% -t %ACR_LOGIN_SERVER%/helix-frontend:latest .\\frontend
                     if errorlevel 1 exit /b 1
-                    echo DEBUG: docker build succeeded for helix-frontend
+                '''
+                bat 'echo DEBUG: docker build succeeded for helix-frontend'
+                bat '''
                     docker push %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG%
                     if errorlevel 1 exit /b 1
                     docker push %ACR_LOGIN_SERVER%/helix-frontend:latest
                     if errorlevel 1 exit /b 1
-                    echo DEBUG: docker push succeeded for helix-frontend
                 '''
+                bat 'echo DEBUG: docker push succeeded for helix-frontend'
             }
         }
 
@@ -156,12 +169,14 @@ pipeline {
                           az containerapp update --name %%s --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/%%s:%IMAGE_TAG% --set-env-vars DB_HOST=%DB_HOST% DB_PORT=3306 DB_USERNAME=helix_app DB_PASSWORD=%REAL_DB_PASSWORD% RABBITMQ_HOST=helix-rabbitmq RABBITMQ_PORT=5672 RABBITMQ_USER=helix RABBITMQ_PASSWORD=%REAL_RABBITMQ_PASSWORD% KAFKA_BOOTSTRAP_SERVERS=helix-kafka:9092 JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
                           if errorlevel 1 exit /b 1
                         )
-
-                        echo Deploying helix-gateway...
+                    '''
+                    bat 'echo Deploying helix-gateway...'
+                    bat '''
                         az containerapp update --name helix-gateway --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-gateway:%IMAGE_TAG% --set-env-vars JWT_SECRET=%REAL_JWT_SECRET% JWT_EXPIRATION_MS=3600000
                         if errorlevel 1 exit /b 1
-
-                        echo Deploying helix-frontend...
+                    '''
+                    bat 'echo Deploying helix-frontend...'
+                    bat '''
                         az containerapp update --name helix-frontend --resource-group %RESOURCE_GROUP% --image %ACR_LOGIN_SERVER%/helix-frontend:%IMAGE_TAG%
                         if errorlevel 1 exit /b 1
                     '''
